@@ -41,7 +41,7 @@ typedef void (*fsm_state)(fsm *, fsm_event const *);
 
 typedef struct
 {
-   fsm_signal sig; // the event trigger
+    fsm_signal sig; // the event trigger
 
 } fsm_event;
 
