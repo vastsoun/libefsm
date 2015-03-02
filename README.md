@@ -1,4 +1,4 @@
-libtfsm -  Lib Test FSM
+libefsm -  Lib Expandable FSM
 ====
 
 Description
