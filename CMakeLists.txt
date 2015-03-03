@@ -20,6 +20,7 @@ set (CMAKE_C_FLAGS_DEV "-std=c99")
 add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG)
 #add_definitions (-O3)
 
+
 # add include headers
 include_directories (/usr/include)
 include_directories (${PROJECT_ROOT_DIR}/src/include)
