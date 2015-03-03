@@ -3,7 +3,8 @@
  *
  *  File:       00_fsm_fpm.c
  *
- *  Description: This is test for the function-pointer method FSM implementation.
+ *  Description: This is test for the DSP-402 FSM implementation using function-pointer
+ *               method.
  *
  *
  ***************************************************************************************/

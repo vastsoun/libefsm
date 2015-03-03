@@ -4,6 +4,9 @@
  *  File:       fsm_dsp402_fpm.c
  *
  *  Description: This is an implementation of an FSM using the function-pointer method.
+ *               The particular FSM implements the state machine specified in the
+ *               CANopen DSP-402 v2.0 specification for Device Profile Drives and
+ *               Motion Control
  *
  *
  ***************************************************************************************/
