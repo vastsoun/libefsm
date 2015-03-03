@@ -4,7 +4,7 @@ libefsm -  Lib Expandable FSM
 Description
 ==
 
-This project contains various implementations of an infrastructure to create and design (Finite State Machines)[http://en.wikipedia.org/wiki/Finite-state_machine]  (FSMs). I is intended to be used in order to test, compare and benchmark different design approaches and implementations for use in embedded C/C++ applications.
+This project contains various implementations of an infrastructure to create and design (Finite State Machines)[http://en.wikipedia.org/wiki/Finite-state_machine]  (FSMs). It is intended for testing, comparing and benchmarking different FSM implementations purposed for embedded C/C++ applications.
 
 
 Installation
