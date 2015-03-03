@@ -14,11 +14,11 @@ set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build")
 
 
 # Build flags
-set (LIBNAME libefsm)
+set (LIBNAME efsm)
 set (CMAKE_BUILD_TYPE dev)
 set (CMAKE_C_FLAGS_DEV "-std=c99")
 add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG)
-
+#add_definitions (-O3)
 
 # add include headers
 include_directories (/usr/include)

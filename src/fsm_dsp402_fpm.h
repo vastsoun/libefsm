@@ -76,7 +76,7 @@ typedef enum
  *
  */
 
-/* Constructor, initialization and execution */
+/* FSM handling functions */
 
 void fsmCreate(dsp402_fsm *m);
 
@@ -85,7 +85,7 @@ void fsmInit(dsp402_fsm *m);
 void fsmRun(dsp402_fsm *m, dsp402_event const *e);
 
 
-/* State implemention functions */
+/* State functions declarations */
 
 void fsmStart(dsp402_fsm *m, dsp402_event const *e);
 
