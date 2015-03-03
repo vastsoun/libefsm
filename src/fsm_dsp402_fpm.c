@@ -9,6 +9,11 @@
  ***************************************************************************************/
 
 
+/* Standard Headers */
+#ifdef FSM_FPM_DEBUG
+#include <stdio.h>
+#endif
+
 /* Module Header */
 #include "fsm_dsp402_fpm.h"
 
@@ -20,56 +25,80 @@
 
 void fsmCreate(dsp402_fsm *m)
 {
-    fsm_create(&m->mFSM, &fsmInit);
+    #ifdef FSM_FPM_DEBUG
+    printf("[FSM]: DSP-402 FSM Created.\r\n");
+    #endif
+
+    fsm_create( &m->mFSM, &fsmStart );
 }
 
 
-void fsmInit(dsp402_fsm *m, dsp402_event const *e)
+void fsmInit(dsp402_fsm *m)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: DSP-402 FSM Initialized.\r\n");
     #endif
 
+    fsm_init( &m->mFSM, 0 );
+}
+
+
+void fsmRun(dsp402_fsm *m, dsp402_event const *e)
+{
+    #ifdef FSM_FPM_DEBUG
+    printf("[FSM]: DSP-402 FSM Running.\r\n");
+    #endif
+
+    fsm_dispatch( &m->mFSM, &e->mEvent );
+}
+
+
+void fsmStart(dsp402_fsm *m, dsp402_event const *e)
+{
+    #ifdef FSM_FPM_DEBUG
+    printf("[FSM]: DSP-402 FSM Started.\r\n");
+    #endif
+
     /* Initialization of FSM attributes */
-    m->fsm_controlword = 0;
-    m->fsm_statusword = 0;
+    m->controlword = 0;
+    m->statusword = 0;
 
     /* Proceed to first initial state */
-    fsm_transition((fsm_base *)m, &fsmNotReadyToSwitchOn);
+    fsm_transition( &m->mFSM, &fsmNotReadyToSwitchOn );
 }
 
 
 void fsmNotReadyToSwitchOn(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'NotReadyToSwitchOn'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0;
+    m->statusword = 0;
 
     /* State Actions */
     // TODO
 
-    fsm_transition((dsp402_fsm *)m, &fsmSwithcOnDisabled);
+    fsm_transition( &m->mFSM, &fsmSwithcOnDisabled );
 }
 
 
 void fsmSwithcOnDisabled(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'SwithcOnDisabled'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0040;
+    m->statusword = 0x0040;
 
     /* State Actions */
-    switch (e->sig)
+    switch (e->mEvent.sig)
     {
         case FSM_IDLE_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: FSM is Idle.\r\n");
             #endif
 
@@ -80,26 +109,26 @@ void fsmSwithcOnDisabled(dsp402_fsm *m, dsp402_event const *e)
 
         case SHUTDOWN_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Shutdown'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmReadyToSwitchOn);
+            fsm_transition( &m->mFSM, &fsmReadyToSwitchOn );
             break;
 
         default:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: error: unknown signal, proceeding to 'Fault Reaction Active'.\r\n");
             #endif
 
             /* Error has occurred */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmFaultReactionActive);
+            fsm_transition( &m->mFSM, &fsmFaultReactionActive );
             break;
     }
 }
@@ -107,19 +136,19 @@ void fsmSwithcOnDisabled(dsp402_fsm *m, dsp402_event const *e)
 
 void fsmReadyToSwitchOn(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'ReadyToSwitchOn'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0021;
+    m->statusword = 0x0021;
 
     /* State Actions */
-    switch (e->sig)
+    switch (e->mEvent.sig)
     {
         case FSM_IDLE_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: FSM is Idle.\r\n");
             #endif
 
@@ -130,26 +159,26 @@ void fsmReadyToSwitchOn(dsp402_fsm *m, dsp402_event const *e)
 
         case SWITCH_ON_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Switch On'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmSwitchedOn);
+            fsm_transition( &m->mFSM, &fsmSwitchedOn );
             break;
 
         default:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: error: unknown signal, proceeding to 'Fault Reaction Active'.\r\n");
             #endif
 
             /* Error has occurred */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmFaultReactionActive);
+            fsm_transition( &m->mFSM, &fsmFaultReactionActive );
             break;
     }
 }
@@ -157,19 +186,19 @@ void fsmReadyToSwitchOn(dsp402_fsm *m, dsp402_event const *e)
 
 void fsmSwitchedOn(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'SwitchedOn'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0043;
+    m->statusword = 0x0043;
 
     /* State Actions */
-    switch (e->sig)
+    switch (e->mEvent.sig)
     {
         case FSM_IDLE_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: FSM is Idle.\r\n");
             #endif
 
@@ -180,26 +209,26 @@ void fsmSwitchedOn(dsp402_fsm *m, dsp402_event const *e)
 
         case SWITCH_ON_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmOperationEnable);
+            fsm_transition( &m->mFSM, &fsmOperationEnable );
             break;
 
         default:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: error: unknown signal, proceeding to 'Fault Reaction Active'.\r\n");
             #endif
 
             /* Error has occurred */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmFaultReactionActive);
+            fsm_transition( &m->mFSM, &fsmFaultReactionActive );
             break;
     }
 }
@@ -207,19 +236,19 @@ void fsmSwitchedOn(dsp402_fsm *m, dsp402_event const *e)
 
 void fsmOperationEnable(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'OperationEnable'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0047;
+    m->statusword = 0x0047;
 
     /* State Actions */
-    switch (e->sig)
+    switch (e->mEvent.sig)
     {
         case FSM_IDLE_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: FSM is Idle.\r\n");
             #endif
 
@@ -230,50 +259,50 @@ void fsmOperationEnable(dsp402_fsm *m, dsp402_event const *e)
 
         case DISABLE_OP_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmSwitchedOn);
+            fsm_transition( &m->mFSM, &fsmSwitchedOn );
             break;
 
         case SHUTDOWN_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmReadyToSwitchOn);
+            fsm_transition( &m->mFSM, &fsmReadyToSwitchOn );
             break;
 
         case QUICKSTOP_EN_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmQuickstopActive);
+            fsm_transition( &m->mFSM, &fsmQuickstopActive );
             break;
 
         default:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: error: unknown signal, proceeding to 'Fault Reaction Active'.\r\n");
             #endif
 
             /* Error has occurred */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmFaultReactionActive);
+            fsm_transition( &m->mFSM, &fsmFaultReactionActive );
             break;
     }
 }
@@ -281,22 +310,22 @@ void fsmOperationEnable(dsp402_fsm *m, dsp402_event const *e)
 
 void fsmQuickstopActive(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'QuickstopActive'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0007;
+    m->statusword = 0x0007;
 
     /* State Actions */
 
     // TODO: Start reducing speed
 
-    switch (e->sig)
+    switch (e->mEvent.sig)
     {
         case FSM_IDLE_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: FSM is Idle.\r\n");
             #endif
 
@@ -307,38 +336,38 @@ void fsmQuickstopActive(dsp402_fsm *m, dsp402_event const *e)
 
         /*case ENABLE_OP_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmOperationEnable);
+            fsm_transition(&m->mFSM, &fsmOperationEnable);
             break;
         */
 
         case QUICKSTOP_END_SIG:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: Received 'Enable Operation'.\r\n");
             #endif
 
             /* Transition Actions */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmSwithcOnDisabled);
+            fsm_transition( &m->mFSM, &fsmSwithcOnDisabled );
             break;
 
         default:
 
-            #if FSM_DEBUG
+            #ifdef FSM_FPM_DEBUG
             printf("[FSM]: error: unknown signal, proceeding to 'Fault Reaction Active'.\r\n");
             #endif
 
             /* Error has occurred */
             // TODO
 
-            fsm_transition((dsp402_fsm *)m, &fsmFaultReactionActive);
+            fsm_transition( &m->mFSM, &fsmFaultReactionActive );
             break;
     }
 }
@@ -346,33 +375,33 @@ void fsmQuickstopActive(dsp402_fsm *m, dsp402_event const *e)
 
 void fsmFaultReactionActive(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'FaultReactionActive'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x000F;
+    m->statusword = 0x000F;
 
     /* State Actions */
     // TODO
 
-    fsm_transition((dsp402_fsm *)m, &fsmFault);
+    fsm_transition( &m->mFSM, &fsmFault );
 }
 
 
 void fsmFault(dsp402_fsm *m, dsp402_event const *e)
 {
-    #if FSM_DEBUG
+    #ifdef FSM_FPM_DEBUG
     printf("[FSM]: State = 'Fault'.\r\n");
     #endif
 
     /* Set the fsm status flag */
-    m->fsm_statusword = 0x0008;
+    m->statusword = 0x0008;
 
     /* State Actions */
     // TODO
 
-    fsm_transition((dsp402_fsm *)m, &fsmSwithcOnDisabled);
+    fsm_transition( &m->mFSM, &fsmSwithcOnDisabled );
 }
 
 

@@ -13,12 +13,12 @@
  *
  ***************************************************************************************/
 
-#ifndef FSM_FP_METHOD_H
-#define FSM_FP_METHOD_H
+#ifndef _FSM_FPM_H_
+#define _FSM_FPM_H_
 
 
 /**
- * FSM class methods.
+ * FSM class methods implemented as pre-proc macros.
  */
 
 #define fsm_create(m_, init_)       ((m_)->state__ = (fsm_state)(init_))
@@ -31,34 +31,37 @@
  * Foundation type definitions
  */
 
-typedef int fsm_signal;
-typedef void (*fsm_state)(fsm *, fsm_event const *);
+typedef int volatile fsm_signal;
+typedef struct fsm_event fsm_event;
+typedef struct fsm_base fsm_base;
+typedef void (* volatile fsm_state)(fsm_base *, fsm_event const *);
 
 
 /**
  * Event base class
  */
 
-typedef struct
+struct fsm_event
 {
     fsm_signal sig; // the event trigger
 
-} fsm_event;
+};
 
 
 /**
  * Finite State Machine base class
  */
 
-typedef struct
+struct fsm_base
 {
    fsm_state state__; // the current state
 
-} fsm_base;
+};
 
 
 
 
-#endif
+#endif /* _FSM_FPM_H_ */
+
 
 /* EOF */

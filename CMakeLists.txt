@@ -1,42 +1,43 @@
-# CMakeList Project File
-cmake_minimum_required(VERSION 2.6)
-
-#Name of the Project
-PROJECT(fsm-test)
-
-# Build configuration
-SET(CMAKE_C_FLAGS "-std=c99")
-#SET(LIBNAME fsm)  #Name of the library that will be generated
-
-ADD_DEFINITIONS(-Wall -ggdb -g)
-
-#INCLUDE_DIRECTORIES(
-#/usr/local/include
-#./src/include
-#)
-
-#LINK_DIRECTORIES(/usr/lib /usr/local/lib)
-
-SET(SRCS
-
-  #TODO
-  #src/
-  #src/tests/
-
-)
+#CMakeLists Header
+cmake_minimum_required (VERSION 2.6)
+project (libefsm)
 
 
-#ADD_LIBRARY(${LIBNAME} STATIC ${SRCS})
-#TARGET_LINK_LIBRARIES(${LIBNAME} m)
+# The version number.
+set (LIBEFSM_VERSION_MAJOR 0)
+set (LIBEFSM_VERSION_MINOR 1)
+
+
+# Directory Parameters
+set (PROJECT_ROOT_DIR ".")
+set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build")
+
+
+# Build flags
+set (LIBNAME libefsm)
+set (CMAKE_BUILD_TYPE dev)
+set (CMAKE_C_FLAGS_DEV "-std=c99")
+add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG)
+
+
+# add include headers
+include_directories (/usr/include)
+include_directories (${PROJECT_ROOT_DIR}/src/include)
+include_directories (${PROJECT_ROOT_DIR}/src)
+
+
+# add source files
+set (LIB_SRC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
+set (EXEC_00_SRC ${PROJECT_ROOT_DIR}/src/tests/00_fsm_fpm.c)
+
+
+# driver libraries
+add_library (${LIBNAME} STATIC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
 
 
 # FSM implementation demos
-ADD_EXECUTABLE(00_fsm_fp ${SRCS} src/tests/00_fsm_fp.c)
-TARGET_LINK_LIBRARIES(00_fsm_fp m)
+add_executable (00_fsm_fpm ${EXEC_00_SRC})
+target_link_libraries (00_fsm_fpm ${LIBNAME})
 
 
-
-# Primary Application
-#ADD_EXECUTABLE(${EXEC_NAME} ${SRCS} src/main.cpp)
-#TARGET_LINK_LIBRARIES(${EXEC_NAME} m  cpc pthread z bluetooth)
-
+# EOF

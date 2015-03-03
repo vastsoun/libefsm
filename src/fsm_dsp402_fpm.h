@@ -16,10 +16,6 @@
 #include "fsm_fpm.h"
 
 
-/* Set to 1 for enabling debug output, else set to 0 */
-#define FSM_DEBUG 1
-
-
 /**
  * Extended FSM class - CiA DSP-402 specifications.
  */
@@ -29,8 +25,8 @@ typedef struct
     fsm_base mFSM;
 
     /* extension attributes */
-    uint16_t fsm_controlword;
-    uint16_t fsm_statusword;
+    uint16_t controlword;
+    uint16_t statusword;
 
 } dsp402_fsm;
 
@@ -44,15 +40,15 @@ typedef struct
     fsm_event mEvent;
 
     /* extension attributes */
-    uint32_t event_src;
-    uint32_t event_code;
+    uint32_t src;
+    uint32_t code;
 
 } dsp402_event;
 
 
 
 /* signals used by the DSP-402 FSM */
-enum
+typedef enum
 {
     FSM_IDLE_SIG,       //< FSM is in idle state, i.e. no state transition event occurred.
     RESET_SIG,          //< System Reset: From NMT Master - Reset Node or Reset App.
@@ -67,7 +63,7 @@ enum
     FAULT_SIG,          //< A fault has just occurred.
     FAULT_ACT_SIG,      //< Fault reaction has completed.
     FAULT_RESET_SIG,    //< "Fault Reset" command received.
-};
+} dsp402_sig;
 
 
 /**
@@ -77,14 +73,18 @@ enum
  *
  */
 
-/* Constructor and Initialization */
+/* Constructor, initialization and execution */
 
 void fsmCreate(dsp402_fsm *m);
 
-void fsmInit(dsp402_fsm *m, dsp402_event const *e);
+void fsmInit(dsp402_fsm *m);
+
+void fsmRun(dsp402_fsm *m, dsp402_event const *e);
 
 
-/* State implementor functions */
+/* State implemention functions */
+
+void fsmStart(dsp402_fsm *m, dsp402_event const *e);
 
 void fsmNotReadyToSwitchOn(dsp402_fsm *m, dsp402_event const *e);
 
