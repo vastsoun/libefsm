@@ -17,7 +17,7 @@ set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build")
 set (LIBNAME efsm)
 set (CMAKE_BUILD_TYPE dev)
 set (CMAKE_C_FLAGS_DEV "-std=c99")
-add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG)
+add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG -DFSM_X_DEBUG)
 #add_definitions (-O3)
 
 
@@ -28,17 +28,23 @@ include_directories (${PROJECT_ROOT_DIR}/src)
 
 
 # add source files
-set (LIB_SRC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
+set (LIB_0_SRC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
+set (LIB_1_SRC ${PROJECT_ROOT_DIR}/src/fsm_X.c)
 set (EXEC_00_SRC ${PROJECT_ROOT_DIR}/src/tests/00_fsm_fpm.c)
+set (EXEC_01_SRC ${PROJECT_ROOT_DIR}/src/tests/01_fsm_X.c)
 
 
 # driver libraries
-add_library (${LIBNAME} STATIC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
+add_library (${LIBNAME}_v1 STATIC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
+add_library (${LIBNAME}_v2 STATIC ${PROJECT_ROOT_DIR}/src/fsm_X.c)
 
 
 # FSM implementation demos
 add_executable (00_fsm_fpm ${EXEC_00_SRC})
-target_link_libraries (00_fsm_fpm ${LIBNAME})
+target_link_libraries (00_fsm_fpm ${LIBNAME}_v1)
+
+add_executable (01_fsm_X ${EXEC_01_SRC})
+target_link_libraries (01_fsm_X ${LIBNAME}_v2)
 
 
 # EOF

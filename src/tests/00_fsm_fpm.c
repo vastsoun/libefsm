@@ -19,6 +19,8 @@ int main (void)
 {
     printf("\r\nThis is a test/demo for using libefsm/fpm variant.\r\n\r\n");
 
+    //int i = 0;
+
     /* Declare FSM objects*/
     dsp402_fsm      fsm;
     dsp402_event    event;
