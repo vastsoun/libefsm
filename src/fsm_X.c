@@ -1,16 +1,20 @@
 /** *************************************************************************************
  *  Author:     Vassilios Tsounis, vastsoun@gmail.com
  *
- *  File:       fsm_X.c
+ *  File:       fsm.c
  *
- *  Description: TODO
+ *  Description: This is an extendible and configurable Finit State Machine (FSM)
+ *               implementation which is well suited for high-performance embedded
+ *               systems. It has a small memory footprint and scales well with
+ *               the addition of states. In fact this implementation is O(m), where m
+ *               is the number of transitions any given state can have.
  *
  *
  ***************************************************************************************/
 
 
 /* Standard Headers */
-#ifdef FSM_FPM_DEBUG
+#ifdef FSM_DEBUG
 #include <stdio.h>
 #endif
 
@@ -26,58 +30,62 @@
 
 void fsmCreate (X_fsm *machine, X_actions *actions)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: FSM Created\r\n");
     #endif
 
     /* Initialize the FSM */
-    machine->mState = fsmStart;
-    machine->mStatus = -1;
+    fsm_transition(machine, fsmStart);
+    fsm_set_status(machine, FSM_STATUS_INIT);
 
     /* Set the user-specific state actions */
-    machine->mActions.Start = actions->Start;
-    machine->mActions.State0 = actions->State0;
-    machine->mActions.State1 = actions->State1;
-    machine->mActions.State2 = actions->State2;
-    machine->mActions.Error = actions->Error;
+    fsm_action_cfg(machine, actions, Background);
+    fsm_action_cfg(machine, actions, Start);
+    fsm_action_cfg(machine, actions, State0);
+    fsm_action_cfg(machine, actions, State1);
+    fsm_action_cfg(machine, actions, State2);
+    fsm_action_cfg(machine, actions, Error);
 }
 
 void fsmReset (X_fsm *machine)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: FSM Reset\r\n");
     #endif
 
     /* Reset the FSM */
-    machine->mState = fsmStart;
-    machine->mStatus = -1;
+    fsm_transition(machine, fsmStart);
+    fsm_set_status(machine, FSM_STATUS_INIT);
 }
 
 
-void fsmRunMachine (X_fsm *machine, X_event const *event, STATUS_TYPE *status)
+void fsmRunMachine (X_fsm *machine, X_event const *event, X_status *status)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: FSM RunMachine\r\n");
     #endif
 
-    /* Run the state machine */
-    (*machine->mState)(machine, event);
+    /* Run a state machine cycle */
+    fsm_run(machine, event);
+
+    /* Execute background action */
+    fsm_action(machine, Background);
 
     /* Update status */
-    *status = machine->mStatus;
+    fsm_get_status(machine, *status);
 }
 
 
 /* Event generation functions */
 
-void fsmGenerateEvent (X_event *event, INPUT_TYPE *input)
+void fsmGenerateEvent (X_event *event, X_input *input)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: Event generator input = %d\r\n", *input);
     #endif
 
     /* Configure the signal based on the input */
-    event->mSignal = (event_signal)(*input);
+    fsm_set_signal(event, input);
 }
 
 
@@ -85,88 +93,102 @@ void fsmGenerateEvent (X_event *event, INPUT_TYPE *input)
 
 void fsmStart(X_fsm *machine, X_event const *event)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: State = Start\r\n");
     #endif
 
     /* Status update */
-    machine->mStatus = 0;
+    fsm_set_status(machine, FSM_STATUS_START);
 
     /* State actions */
-    (*machine->mActions.Start)();
+    fsm_action(machine, Start);
 
     /* State transitions */
-    machine->mState = fsmState0;
+    fsm_transition(machine, fsmState0);
 }
 
 void fsmState0(X_fsm *machine, X_event const *event)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: State = State 0\r\n");
     #endif
 
     /* Status update */
-    machine->mStatus = 1;
+    fsm_set_status(machine, FSM_STATUS_STATE0);
 
     /* State actions */
-    (*machine->mActions.State0)();
+    fsm_action(machine, State0);
 
     /* State transitions */
-    machine->mState = fsmState1;
+    switch (event->mSignal)
+    {
+        case START_SIG:
+            fsm_transition(machine, fsmState1);
+            break;
+
+        case ERROR_SIG:
+            fsm_transition(machine, fsmError);
+            fsm_run(machine, event);
+            break;
+    }
 }
 
 void fsmState1(X_fsm *machine, X_event const *event)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: State = State 1\r\n");
     #endif
 
     /* Status update */
-    machine->mStatus = 2;
+    fsm_set_status(machine, FSM_STATUS_STATE1);
 
     /* State actions */
-    (*machine->mActions.State1)();
+    fsm_action(machine, State1);
 
     /* State transitions */
     switch (event->mSignal)
     {
         case RESET_SIG:
-            machine->mState = fsmState0;
+            fsm_transition(machine, fsmStart);
+            break;
+
+        case STOP_SIG:
+            fsm_transition(machine, fsmState0);
             break;
 
         case ENABLE_OP_SIG:
-            machine->mState = fsmState2;
+            fsm_transition(machine, fsmState2);
             break;
 
         case ERROR_SIG:
-            (machine->mState = fsmError);
-            (*machine->mState)(machine, event);
+            fsm_transition(machine, fsmError);
+            fsm_run(machine, event);
             break;
     }
 }
 
 void fsmState2(X_fsm *machine, X_event const *event)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: State = State 2\r\n");
     #endif
 
     /* Status update */
-    machine->mStatus = 3;
+    fsm_set_status(machine, FSM_STATUS_STATE2);
 
     /* State actions */
-    (*machine->mActions.State2)();
+    fsm_action(machine, State2);
 
     /* State transitions */
     switch (event->mSignal)
     {
         case DISABLE_OP_SIG:
-            machine->mState = fsmState1;
+            fsm_transition(machine, fsmState1);
             break;
 
         case ERROR_SIG:
-            (machine->mState = fsmError);
-            (*machine->mState)(machine, event);
+            fsm_transition(machine, fsmError);
+            fsm_run(machine, event);
             break;
     }
 }
@@ -174,21 +196,29 @@ void fsmState2(X_fsm *machine, X_event const *event)
 
 void fsmError(X_fsm *machine, X_event const *event)
 {
-    #ifdef FSM_X_DEBUG
+    #ifdef FSM_DEBUG
     printf("[FSM]: State = Error\r\n");
     #endif
 
     /* Status update */
-    machine->mStatus = -2;
+    fsm_set_status(machine, FSM_STATUS_ERROR);
 
     /* State actions */
-    (*machine->mActions.Error)();
+    fsm_action(machine, Error);
 
     /* State transitions */
     switch (event->mSignal)
     {
+        case ERROR_OK_SIG:
+            fsm_transition(machine, fsmState2);
+            break;
+
         case ERROR_ACK_SIG:
-            machine->mState = fsmState0;
+            fsm_transition(machine, fsmState1);
+            break;
+
+        case ERROR_RESET_SIG:
+            fsm_transition(machine, fsmState0);
             break;
     }
 }
