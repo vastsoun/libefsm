@@ -26,6 +26,7 @@ void my_status_func (int status);
 void my_signals (void);
 
 /* Declare custom state actions */
+void myBackground (void);
 void myStart (void);
 void myState0 (void);
 void myState1 (void);
@@ -83,6 +84,7 @@ int main (int argc, char **argv)
 /* Define custom action config */
 void my_task_config (X_actions *actions)
 {
+    actions->Background = myBackground;
     actions->Start = myStart;
     actions->State0 = myState0;
     actions->State1 = myState1;
@@ -130,16 +132,26 @@ void my_signals (void)
 {
     printf("[X]: Possible signals are:\r\n");
     printf("    RESET_SIG = %d\r\n", RESET_SIG);
-    printf("    START_SIG = %d\r\n", START_SIG);
+    printf("    STARTUP_SIG = %d\r\n", START_SIG);
+    printf("    SHUTDOWN_SIG = %d\r\n", START_SIG);
     printf("    ENABLE_OP_SIG = %d\r\n", ENABLE_OP_SIG);
     printf("    DISABLE_OP_SIG = %d\r\n", DISABLE_OP_SIG);
     printf("    ERROR_SIG = %d\r\n", ERROR_SIG);
+    printf("    ERROR_OK_SIG = %d\r\n", ERROR_ACK_SIG);
     printf("    ERROR_ACK_SIG = %d\r\n", ERROR_ACK_SIG);
+    printf("    ERROR_RESET_SIG = %d\r\n", ERROR_ACK_SIG);
     printf("\r\n");
 };
 
 
 /* Define custom state actions */
+
+void myBackground (void)
+{
+    #ifdef FSM_X_DEBUG
+    printf("[X]: Background Action\r\n");
+    #endif
+}
 
 void myStart (void)
 {
