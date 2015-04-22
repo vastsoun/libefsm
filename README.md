@@ -7,7 +7,7 @@ This project contains various implementations of an infrastructure to create and
 
 ## Licensing
 
-This library is licensed under the BSD 3-clause ("New") license.
+This library is licensed under the BSD 3-clause ("Newer") license.
 
 
 ##Installation
