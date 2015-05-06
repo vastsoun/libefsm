@@ -1,4 +1,4 @@
-#libefsm -  Expandable FSM  C/C++ Library
+#libefsm -  Expandable FSM Implementation Library
 
 ##Description
 
@@ -19,6 +19,6 @@ This is a standard CMake build. The following steps are used to build from sourc
 3. make
 
 
-        
+
 ----
 Copyright (C) 2015, Vassilios Tsounis

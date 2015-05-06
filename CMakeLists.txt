@@ -9,42 +9,40 @@ set (LIBEFSM_VERSION_MINOR 1)
 
 
 # Directory Parameters
-set (PROJECT_ROOT_DIR ".")
-set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build")
+set (PROJECT_BUILD_DIR build)
 
 
 # Build flags
 set (LIBNAME efsm)
 set (CMAKE_BUILD_TYPE dev)
 set (CMAKE_C_FLAGS_DEV "-std=c99")
-add_definitions (-Wall -ggdb -g -DFSM_FPM_DEBUG -DFSM_X_DEBUG)
+add_definitions (-Wall -ggdb -g -DFSM_DEBUG)
 #add_definitions (-O3)
 
 
 # add include headers
-include_directories (/usr/include)
-include_directories (${PROJECT_ROOT_DIR}/src/include)
-include_directories (${PROJECT_ROOT_DIR}/src)
+include_directories (
+    /usr/include
+    src/libefsm
+    src/fsm/fsm_template
+)
 
 
-# add source files
-set (LIB_0_SRC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
-set (LIB_1_SRC ${PROJECT_ROOT_DIR}/src/fsm_X.c)
-set (EXEC_00_SRC ${PROJECT_ROOT_DIR}/src/tests/00_fsm_fpm.c)
-set (EXEC_01_SRC ${PROJECT_ROOT_DIR}/src/tests/01_fsm_X.c)
+# add FSM implementation source files
+set (EFSM_BASE_SRC src/libefsm/fsm_base.c)
+set (FSM_TEMPLATE_SRC src/fsm/fsm_template/fsm_template.c)
+
+# add test source files
+set (EXEC_00_SRC src/tests/00_template.c)
 
 
 # driver libraries
-add_library (${LIBNAME}_v1 STATIC ${PROJECT_ROOT_DIR}/src/fsm_dsp402_fpm.c)
-add_library (${LIBNAME}_v2 STATIC ${PROJECT_ROOT_DIR}/src/fsm_X.c)
+add_library (${LIBNAME}_template STATIC ${EFSM_BASE_SRC} ${FSM_TEMPLATE_SRC})
 
 
 # FSM implementation demos
-add_executable (00_fsm_fpm ${EXEC_00_SRC})
-target_link_libraries (00_fsm_fpm ${LIBNAME}_v1)
-
-add_executable (01_fsm_X ${EXEC_01_SRC})
-target_link_libraries (01_fsm_X ${LIBNAME}_v2)
+add_executable (00_template ${EXEC_00_SRC})
+target_link_libraries (00_template ${LIBNAME}_template)
 
 
 # EOF
