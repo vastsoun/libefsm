@@ -46,15 +46,17 @@ void fsm_error(efsm *machine, fsm_event const *event)
     /* Status update */
     FSM_SET_STATUS(machine, FSM_STATUS_ERROR);
 
-    /* State actions */
-    FSM_ACTION(machine, error);
-
     /* State transitions */
     switch (FSM_GET_SIGNAL(event))
     {
         case ERROR_OK_SIG:  // SET THIS
             FSM_TRANSITION(machine, fsm_state_0); // SET THIS
             break;
+
+        /* State actions */
+        default:
+            FSM_ACTION(machine, error);
+
     }
 }
 
@@ -74,9 +76,6 @@ void fsm_state_0 (efsm *machine, fsm_event const *event)
     /* Status update */
     FSM_SET_STATUS(machine, FSM_STATUS_STATE_0); // SET THIS
 
-    /* State actions */
-    FSM_ACTION(machine, state_action[0]); // SET THIS
-
     /* State transitions */
     switch (FSM_GET_SIGNAL(event))
     {
@@ -88,6 +87,11 @@ void fsm_state_0 (efsm *machine, fsm_event const *event)
             FSM_TRANSITION(machine, fsm_error); // SET THIS
             FSM_RUN(machine, event);
             break;
+
+        /* State actions */
+        default:
+            FSM_ACTION(machine, state_action[0]); // SET THIS
+
     }
 }
 
