@@ -34,6 +34,7 @@ void fsm_start (efsm *machine, fsm_event const *event)
 
     /* State transitions */
     FSM_TRANSITION(machine, fsm_state_0); // SET THIS
+    FSM_RUN(machine, event);
 }
 
 
@@ -51,6 +52,7 @@ void fsm_error(efsm *machine, fsm_event const *event)
     {
         case ERROR_OK_SIG:  // SET THIS
             FSM_TRANSITION(machine, fsm_state_0); // SET THIS
+            FSM_RUN(machine, event);
             break;
 
         /* State actions */
@@ -81,6 +83,7 @@ void fsm_state_0 (efsm *machine, fsm_event const *event)
     {
         case START_SIG:
             FSM_TRANSITION(machine, fsm_start); // SET THIS
+            FSM_RUN(machine, event);
             break;
 
         case ERROR_SIG:
